@@ -1,2 +1,4 @@
-# TakaneBot
-Telegram bot  for work with API
+# TakaneBot work with api
+<h1> TakaneBot-Kitty Edition </h1>
+<p1> Телеграм бот для просмотра и оценки фото котиков </p1>
+
