@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from aiogram import Bot,Dispatcher,executor,types
 
 
-from aiogram.types import ReplyKeyboardMarkup,KeyboardButton,InlineKeyboardMarkup,InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup,KeyboardButton
 
 
 logging.debug('отладка')
@@ -37,10 +37,9 @@ dp = Dispatcher(bot=bot)
 
 button1=KeyboardButton('Отправь китю! 😽')
 ReplyKeyboard=ReplyKeyboardMarkup(resize_keyboard=True,one_time_keyboard=True).add(button1)
-#requests.post(API_POST), data={'value':'10'}
-button2=InlineKeyboardButton('Красотуля😘',callback_data='+')
-button3=InlineKeyboardButton('Кринжуля😈',callback_data='-')
-InlineKeyboard=InlineKeyboardMarkup(row_width=2).add(button2,button3)
+button2=KeyboardButton('Красотуля😘',callback_data='+')
+button3=KeyboardButton('Кринжуля😈',callback_data='-')
+RatingKeyboard=ReplyKeyboardMarkup(row_width=2,resize_keyboard=True).add(button2,button3,button1)
 
 
 
@@ -56,22 +55,30 @@ async def start(message:types.Message):
 
 @dp.message_handler()
 async def send_kitty(message: types.Message):
-    if message.text == 'Отправь китю! 😽':
-        await message.answer('Ван минут...')
+    context={'Отправь китю! 😽','Красотуля😘','Кринжуля😈'}
+    if message.text in context:
+        response = requests.get(API).json()
+        kitty = response[0].get('url')
+        kitty_id = response[0].get('id')
+        
         try:
-            response = requests.get(API).json()
-            kitty = response[0].get('url')
-            chat_id=message.from_user.id
-            await bot.send_photo(chat_id=chat_id,photo=kitty,reply_markup=InlineKeyboard)
+            if message.text == 'Отправь китю! 😽':
+                
+                await message.answer('Ван минут...')
+                chat_id=message.from_user.id
+                await bot.send_photo(chat_id=chat_id,photo=kitty,reply_markup=RatingKeyboard) 
+            else: await rating_kitty(message.text,kitty_id)
+                
         except: await message.answer('Все кисы разбежались 😓')
 
 
-@dp.callback_query_handler()
-async def process_callback(callback:types.CallbackQuery):
-    await bot.answer_callback_query(callback.id)
-    if callback.id=='+':
-        requests.post(API_POST, {'x-api-key':f'{API_POST}/api-key={KEY}','value':'1'})
-    else: requests.post(API_POST, {'x-api-key':f'{API_POST}/api-key={KEY}','value':'-1'})
+async def rating_kitty(rating,id):
+    if rating == 'Красотуля😘':
+       requests.post(API_POST,{'x-api-key':KEY,'image_id':id,'value':'10'})
+    else: requests.post(API_POST,{'x-api-key':KEY,'image_id':id,'value':'-10'})
+
+
+       
 
 
 if __name__ == '__main__':
