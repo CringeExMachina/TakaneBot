@@ -77,10 +77,6 @@ async def rating_kitty(rating,id):
        requests.post(API_POST,{'x-api-key':KEY,'image_id':id,'value':'10'})
     else: requests.post(API_POST,{'x-api-key':KEY,'image_id':id,'value':'-10'})
 
-
-       
-
-
 if __name__ == '__main__':
     executor.start_polling(dp)
 
